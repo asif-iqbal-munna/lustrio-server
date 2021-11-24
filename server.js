@@ -26,6 +26,7 @@ const run = async () => {
     const hotelsCollection = database.collection("hotels");
     const bookingsCollection = database.collection("bookings");
     const feedbacksCollection = database.collection("feedbacks");
+    const usersCollection = database.collection("users");
 
     // Getting all hotels data
     app.get("/hotels", async (req, res) => {
@@ -65,6 +66,37 @@ const run = async () => {
     app.get("/feedbacks", async (req, res) => {
       const feedbacks = await feedbacksCollection.find({}).toArray();
       res.send(feedbacks);
+    });
+
+    // Get Bookings by email
+    app.get("/bookings/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email };
+      const userBookings = await bookingsCollection.find(query).toArray();
+      res.send(userBookings);
+    });
+
+    // Add registered users
+    app.post("/users", async (req, res) => {
+      const user = req.body;
+      const setUser = await usersCollection.insertOne(user);
+      res.send(setUser);
+    });
+
+    // Add Google sign in users
+    app.put("/users", async (req, res) => {
+      const user = req.body;
+      const filter = { email: user.email };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: user,
+      };
+      const setUser = await usersCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
+      res.send(setUser);
     });
   } finally {
     // await client.close();
