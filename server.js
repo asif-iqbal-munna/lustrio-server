@@ -25,10 +25,11 @@ const run = async () => {
     const database = client.db("lustrioData");
     const hotelsCollection = database.collection("hotels");
     const bookingsCollection = database.collection("bookings");
+    const feedbacksCollection = database.collection("feedbacks");
 
     // Getting all hotels data
     app.get("/hotels", async (req, res) => {
-      const hotels = await await hotelsCollection.find({}).toArray();
+      const hotels = await hotelsCollection.find({}).toArray();
       res.send(hotels);
     });
 
@@ -40,11 +41,30 @@ const run = async () => {
       res.send(singleHotel);
     });
 
-    // Posting review
+    // Posting bookings data
     app.post("/bookings", async (req, res) => {
       const bookingInfo = req.body;
       const setBooking = await bookingsCollection.insertOne(bookingInfo);
       res.send(setBooking);
+    });
+
+    // Get Bookings data
+    app.get("/bookings", async (req, res) => {
+      const bookings = await bookingsCollection.find({}).toArray();
+      res.send(bookings);
+    });
+
+    // Getting a feedback
+    app.post("/feedbacks", async (req, res) => {
+      const feedbackData = req.body;
+      const setFeedback = await feedbacksCollection.insertOne(feedbackData);
+      res.send(setFeedback);
+    });
+
+    // Get all feedbacks data
+    app.get("/feedbacks", async (req, res) => {
+      const feedbacks = await feedbacksCollection.find({}).toArray();
+      res.send(feedbacks);
     });
   } finally {
     // await client.close();
