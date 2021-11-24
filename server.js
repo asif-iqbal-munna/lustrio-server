@@ -98,6 +98,17 @@ const run = async () => {
       );
       res.send(setUser);
     });
+
+    // Make Admin
+    app.put("/users/admin", async (req, res) => {
+      const user = req.body;
+      const filter = { email: user.email };
+      const updateDoc = {
+        $set: { role: " admin" },
+      };
+      const makeAdmin = await usersCollection.updateOne(filter, updateDoc);
+      res.send(makeAdmin);
+    });
   } finally {
     // await client.close();
   }
