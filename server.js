@@ -123,15 +123,13 @@ const run = async () => {
       const email = req.params.email;
       const query = { email };
       const user = await usersCollection.findOne(query);
-      console.log(user);
-      console.log(user?.role === "admin");
       let isAdmin = false;
       if (user?.role === "admin") {
         isAdmin = true;
       }
-      console.log(isAdmin);
       res.send({ admin: isAdmin });
     });
+
   } finally {
     // await client.close();
   }
