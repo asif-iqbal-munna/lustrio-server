@@ -129,7 +129,6 @@ const run = async () => {
       }
       res.send({ admin: isAdmin });
     });
-
   } finally {
     // await client.close();
   }
