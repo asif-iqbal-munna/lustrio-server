@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
 const cors = require("cors");
+const fileUpload = require("express-fileupload");
 require("dotenv").config();
 const { MongoClient } = require("mongodb");
 const ObjectId = require("mongodb").ObjectId;
@@ -9,6 +10,7 @@ const port = process.env.PORT || 8000;
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(fileUpload());
 
 // Database URI with environment variable of username & password
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.bauja.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
@@ -36,7 +38,22 @@ const run = async () => {
 
     // Add A Hotel
     app.post("/hotels", async (req, res) => {
-      const hotelData = req.body;
+      const name = req.body.name;
+      const price = req.body.price;
+      const location = req.body.location;
+      const description = req.body.description;
+      const image = req.files.image.data;
+      const encodedImg = image.toString("base64");
+      const imageBuffer = Buffer(encodedImg, "base64");
+      const hotelData = {
+        name,
+        price,
+        location,
+        description,
+        img: imageBuffer,
+      };
+      console.log("data", hotelData);
+      console.log("files", image);
       const addedHotel = await hotelsCollection.insertOne(hotelData);
       res.send(addedHotel);
     });
