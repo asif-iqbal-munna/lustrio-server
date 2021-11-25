@@ -76,6 +76,14 @@ const run = async () => {
       res.send(userBookings);
     });
 
+    // Cencel A Booking
+    app.delete("/booking/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const deletedBooking = await bookingsCollection.deleteOne(query);
+      res.send(deletedBooking);
+    });
+
     // Add registered users
     app.post("/users", async (req, res) => {
       const user = req.body;
