@@ -112,10 +112,25 @@ const run = async () => {
       const user = req.body;
       const filter = { email: user.email };
       const updateDoc = {
-        $set: { role: " admin" },
+        $set: { role: "admin" },
       };
       const makeAdmin = await usersCollection.updateOne(filter, updateDoc);
       res.send(makeAdmin);
+    });
+
+    //  check if Admin
+    app.get("/users/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email };
+      const user = await usersCollection.findOne(query);
+      console.log(user);
+      console.log(user?.role === "admin");
+      let isAdmin = false;
+      if (user?.role === "admin") {
+        isAdmin = true;
+      }
+      console.log(isAdmin);
+      res.send({ admin: isAdmin });
     });
   } finally {
     // await client.close();
