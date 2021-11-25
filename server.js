@@ -34,6 +34,21 @@ const run = async () => {
       res.send(hotels);
     });
 
+    // Add A Hotel
+    app.post("/hotels", async (req, res) => {
+      const hotelData = req.body;
+      const addedHotel = await hotelsCollection.insertOne(hotelData);
+      res.send(addedHotel);
+    });
+
+    // Delete A Hotel
+    app.delete("/hotels/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const deletedHotel = await hotelsCollection.deleteOne(query);
+      res.send(deletedHotel);
+    });
+
     // Getting a single hotel data with id parameter
     app.get("/hotel/:id", async (req, res) => {
       const id = req.params.id;
