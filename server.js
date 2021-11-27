@@ -4,8 +4,15 @@ const cors = require("cors");
 const fileUpload = require("express-fileupload");
 require("dotenv").config();
 const { MongoClient } = require("mongodb");
+const admin = require("firebase-admin");
 const ObjectId = require("mongodb").ObjectId;
 const port = process.env.PORT || 8000;
+
+const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
 
 // Middleware
 app.use(cors());
@@ -20,6 +27,18 @@ const client = new MongoClient(uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
+
+//  Middleware to verify before making admin
+const verifyToken = async (req, res, next) => {
+  if (req.headers?.authorization?.startsWith("Bearer")) {
+    const token = req.headers.authorization.split(" ")[1];
+    try {
+      const decodedUser = await admin.auth().verifyIdToken(token);
+      req.decodedEmail = decodedUser.email;
+    } catch {}
+  }
+  next();
+};
 
 const run = async () => {
   try {
@@ -52,8 +71,6 @@ const run = async () => {
         description,
         img: imageBuffer,
       };
-      console.log("data", hotelData);
-      console.log("files", image);
       const addedHotel = await hotelsCollection.insertOne(hotelData);
       res.send(addedHotel);
     });
@@ -140,14 +157,23 @@ const run = async () => {
     });
 
     // Make Admin
-    app.put("/users/admin", async (req, res) => {
+    app.put("/users/admin", verifyToken, async (req, res) => {
       const user = req.body;
-      const filter = { email: user.email };
-      const updateDoc = {
-        $set: { role: "admin" },
-      };
-      const makeAdmin = await usersCollection.updateOne(filter, updateDoc);
-      res.send(makeAdmin);
+      const requester = req.decodedEmail;
+      if (requester) {
+        const requesterAccount = await usersCollection.findOne({
+          email: requester,
+        });
+        if (requesterAccount.role === "admin") {
+          const filter = { email: user.email };
+          const updateDoc = {
+            $set: { role: "admin" },
+          };
+          const makeAdmin = await usersCollection.updateOne(filter, updateDoc);
+          res.send(makeAdmin);
+        }
+      }
+      res.status(403);
     });
 
     //  check if Admin
