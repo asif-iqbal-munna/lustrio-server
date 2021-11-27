@@ -6,6 +6,7 @@ require("dotenv").config();
 const { MongoClient } = require("mongodb");
 const admin = require("firebase-admin");
 const ObjectId = require("mongodb").ObjectId;
+const stripe = require("stripe")(process.env.STRIPE_SECRET);
 const port = process.env.PORT || 8000;
 
 const serviceAccount = require("./lustrio-firebase-adminsdk-hpzu3.json");
@@ -133,6 +134,14 @@ const run = async () => {
       res.send(deletedBooking);
     });
 
+    // Get A Single Booking
+    app.get("/booking/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const booking = await bookingsCollection.findOne(query);
+      res.send(booking);
+    });
+
     // Add registered users
     app.post("/users", async (req, res) => {
       const user = req.body;
@@ -186,6 +195,39 @@ const run = async () => {
         isAdmin = true;
       }
       res.send({ admin: isAdmin });
+    });
+
+    // Create a PaymentIntent with the order amount and currency
+    app.post("/create-payment-intent", async (req, res) => {
+      console.log(req.body);
+      const paymentInfo = req.body;
+      // const price = parseInt(paymentInfo.price);
+      const amount = paymentInfo.price * 100;
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount,
+        currency: "usd",
+        automatic_payment_methods: {
+          enabled: true,
+        },
+      });
+
+      res.send({
+        clientSecret: paymentIntent.client_secret,
+      });
+
+      // updating booking payment status
+      app.put("/booking/:id", async (req, res) => {
+        const id = req.params.id;
+        const filter = { _id: ObjectId(id) };
+        const updateDoc = {
+          $set: { paid: true, status: "approved" },
+        };
+        const paidBooking = await bookingsCollection.updateOne(
+          filter,
+          updateDoc
+        );
+        res.send(paidBooking);
+      });
     });
   } finally {
     // await client.close();
