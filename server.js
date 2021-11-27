@@ -8,7 +8,7 @@ const admin = require("firebase-admin");
 const ObjectId = require("mongodb").ObjectId;
 const port = process.env.PORT || 8000;
 
-const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+const serviceAccount = require("./lustrio-firebase-adminsdk-hpzu3.json");
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
