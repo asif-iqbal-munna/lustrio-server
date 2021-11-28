@@ -214,7 +214,7 @@ const run = async () => {
         clientSecret: paymentIntent.client_secret,
       });
 
-      // updating booking payment status
+      // updating booking for the payment status
       app.put("/booking/:id", async (req, res) => {
         const id = req.params.id;
         const filter = { _id: ObjectId(id) };

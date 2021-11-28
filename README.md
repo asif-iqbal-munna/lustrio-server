@@ -4,7 +4,7 @@ Lustrio is a hotel booking website. It is almost 95% real functionality of a hot
 
 ## [Live Website Link](https://lustrio-2d916.web.app/)
 
-### [Server Side Code Link](https://github.com/asif-iqbal-munna/lustrio)
+### [Client Side Code Link](https://github.com/asif-iqbal-munna/lustrio)
 
 # Technologies and packages used in this application
 
