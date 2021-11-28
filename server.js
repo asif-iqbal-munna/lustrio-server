@@ -199,7 +199,6 @@ const run = async () => {
 
     // Create a PaymentIntent with the order amount and currency
     app.post("/create-payment-intent", async (req, res) => {
-      console.log(req.body);
       const paymentInfo = req.body;
       // const price = parseInt(paymentInfo.price);
       const amount = paymentInfo.price * 100;
